@@ -26,8 +26,8 @@ All in the first line of speed.js
   loggerFileName: 'log.csv',       // Name of file to save history
 
   enableWebInterface: true,        // Web interface of result
-  webInterfacePort: 3131,          // Port of web interface, WARNING you must update indes.html
-  webInterfaceListenIp: "0.0.0.0", // IP to start server, WARNING you must update indes.html
+  webInterfacePort: 3131,          // Port of web interface
+  webInterfaceListenIp: "0.0.0.0", // IP to start server
 
   enableCLICharts: true,           // Show graph in CLI
   clearCLIBetweenTest: true,       // Clear screen between test
