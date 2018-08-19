@@ -78,25 +78,22 @@ if(options.enableWebInterface) {
    if (options.consoleLog) {
      console.log('Make sure you have the certificates in: {0}'.format(greenlockCfg.configDir));
     }
-   // var redir = require('redirect-https')();
-   // require('http').createServer(greenlock.middleware(redir)).listen(80);
-    server = https.createServer(greenlock.tlsOptions, 
-      function(req, res) {
-      fs.readFile('./index.html', 'utf-8', function(error, content) {
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(content);
-      })
-     }
-    );
-  } else {
-	//Webserver
-	 server = http.createServer(function(req, res) {
-		fs.readFile('./index.html', 'utf-8', function(error, content) {
-			res.writeHead(200, {"Content-Type": "text/html"});
-			res.end(content);
-		});
-	});
- }
+
+    server = https.createServer(greenlock.tlsOptions, function(req, res) {
+          fs.readFile('./index.html', 'utf-8', function(error, content) {
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end(content);
+          })
+       }
+      );
+    } else {
+     server = http.createServer(function(req, res) {
+        fs.readFile('./index.html', 'utf-8', function(error, content) {
+          res.writeHead(200, {"Content-Type": "text/html"});
+          res.end(content);
+        });
+    });
+   }
 
 	//Initialise Socket IO
 	var io = require('socket.io').listen(server);
