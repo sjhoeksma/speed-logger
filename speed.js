@@ -11,6 +11,7 @@ var options = {
 	consoleLog: false,           // Output logging to console
   secureDomains: null,          // Array of strings [ 'www.example.com' ]
   secureAdminEmail: 'youremail@here.com' //The admin for the secure email confirmation
+  //,speedtestServer: 14949  //Specify the speedtest server to use https://www.speedtestserver.com/
  
   /** Secure uses https://letsencrypt.org/
      # Install software letsencrypt 
@@ -147,7 +148,7 @@ function log_speed() {
 	if(options.consoleLog)
 		console.log( "\n Running test ..." );
 
-	var tester = child.exec( 'speedtest-cli --json' );
+	var tester = child.exec( 'speedtest-cli --json ' + (options.speedtestServer ? '--server ' + options.speedtestServer : '') );
 
   try {
     tester.stdout.on( 'data', function( data ) {
