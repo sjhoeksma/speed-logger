@@ -52,6 +52,49 @@ if (!String.prototype.format) {
   };
 }
 
+function speedserver(req,res){
+ //console.log(`${req.method} ${req.url}`);
+ const parsedUrl = url.parse(req.url);
+ let pathname = './webroot' + `${parsedUrl.pathname}`;
+ const mimeType = {
+    '.ico': 'image/x-icon',
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.json': 'application/json',
+    '.css': 'text/css',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.wav': 'audio/wav',
+    '.mp3': 'audio/mpeg',
+    '.svg': 'image/svg+xml',
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
+    '.eot': 'appliaction/vnd.ms-fontobject',
+    '.ttf': 'aplication/font-sfnt'
+  };
+  
+  fs.exists(pathname, function (exist) {
+    if(!exist) {
+      res.statusCode = 404;
+      res.end(`File ${pathname} not found!`);
+      return;
+    } 
+   if (fs.statSync(pathname).isDirectory()) {
+      pathname += '/index.html';
+    }
+   fs.readFile(pathname, function(err, data){
+      if(err){
+        res.statusCode = 500;
+        res.end(`Error getting the file: ${err}.`);
+      } else {
+        const ext = path.parse(pathname).ext;
+        res.setHeader('Content-type', mimeType[ext] || 'text/plain' );
+        res.end(data);
+      }
+    });
+  });
+}
+
 if(options.enableWebInterface) {
   if (options.consoleLog) 
 	  console.log('Start {0}webserver on {1}:{2} every {3} minutes refresh'.format(options.secureDomains && options.secureAdminEmail ? "secure" :"", options.webInterfaceListenIp, options.webInterfacePort,Math.round(options.interval/60)));
@@ -60,7 +103,6 @@ if(options.enableWebInterface) {
   if (options.secureDomains && options.secureAdminEmail) { 
      const PROD = true;
      var path = require('path');
-     //var os = require('os')
      var Greenlock = require('greenlock');
      var greenlockCfg = {
         agreeTos: true                      // Accept Let's Encrypt v2 Agreement
@@ -80,21 +122,10 @@ if(options.enableWebInterface) {
      console.log('Make sure you have the certificates in: {0}'.format(greenlockCfg.configDir));
     }
 
-    server = https.createServer(greenlock.tlsOptions, function(req, res) {
-          fs.readFile('./index.html', 'utf-8', function(error, content) {
-            res.writeHead(200, {"Content-Type": "text/html"});
-            res.end(content);
-          })
-       }
-      );
-    } else {
-     server = http.createServer(function(req, res) {
-        fs.readFile('./index.html', 'utf-8', function(error, content) {
-          res.writeHead(200, {"Content-Type": "text/html"});
-          res.end(content);
-        });
-    });
-   }
+    server = https.createServer(greenlock.tlsOptions, speedserver)
+  } else {
+    server = http.createServer(speedserver);
+  }
 
 	//Initialise Socket IO
 	var io = require('socket.io').listen(server);
